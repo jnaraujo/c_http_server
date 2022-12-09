@@ -1,0 +1,10 @@
+{
+  "files.associations": {
+    "stdlib.h": "c",
+    "router.h": "c",
+    "ws2tcpip.h": "c",
+    "server.h": "c",
+    "windows.h": "c",
+    "xmemory": "c"
+  }
+}
