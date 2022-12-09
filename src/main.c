@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <direct.h>
+#include <winsock2.h>
 
 #include "Router/Router.h"
 #include "Server/Server.h"
@@ -82,5 +83,56 @@ int main() {
         Router_addRoute(router, routeNameWithoutHtml, filePath);
     }
 
-    Server_start(router, 3000); 
+    SOCKET msgsock;
+    SOCKET socket =  Server_start(router, 3000); 
+
+    while(1) {
+        msgsock = accept(socket, NULL, NULL);
+
+        if(msgsock == INVALID_SOCKET) {
+        printf("accept() failed: %d\n", WSAGetLastError());
+        WSACleanup();
+        exit(1);
+        }
+
+        char buffer[1024];
+        int bytes;
+
+        bytes = recv(msgsock, buffer, sizeof(buffer), 0);
+
+        if(bytes == SOCKET_ERROR) {
+        printf("recv() failed: %d\n", WSAGetLastError());
+        WSACleanup();
+        exit(1);
+        }
+
+        buffer[bytes] = '\0';
+
+        // get route
+        char* path = strtok(buffer, " ");
+        path = strtok(NULL, " ");
+
+        Route* route = Router_getRoute(router, path);
+
+        printf("Path: %s\n", path);
+
+        if (route == NULL) {
+        printf("Route not found\n");
+        closesocket(msgsock);
+        continue;
+        }
+
+        char http_header[4096] = "HTTP/1.1 200 OK\r\n\r\n";
+
+        char* html = read_html_file(route->html);
+
+        strcat(http_header, html);
+
+        send(msgsock, http_header, strlen(http_header), 0);
+        closesocket(msgsock);
+        free(html);
+    }
+
+    closesocket(socket);
+    WSACleanup();
 }

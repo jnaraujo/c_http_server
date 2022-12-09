@@ -5,6 +5,8 @@
     "ws2tcpip.h": "c",
     "server.h": "c",
     "windows.h": "c",
-    "xmemory": "c"
+    "xmemory": "c",
+    "stdio.h": "c",
+    "winsock2.h": "c"
   }
 }

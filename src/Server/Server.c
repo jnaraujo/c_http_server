@@ -7,8 +7,8 @@
 
 #pragma comment(lib,"Ws2_32.lib")
 
-Server Server_start(Router * router, int port) {
-  SOCKET sock, msgsock;
+SOCKET Server_start(Router * router, int port) {
+  SOCKET sock;
   WSADATA wsadata;
 
   SOCKADDR_IN serverAddr;
@@ -44,65 +44,6 @@ Server Server_start(Router * router, int port) {
 
   printf("Listening on port %d\n", port);
 
-  while(1) {
-    msgsock = accept(sock, NULL, NULL);
 
-    if(msgsock == INVALID_SOCKET) {
-      printf("accept() failed: %d\n", WSAGetLastError());
-      WSACleanup();
-      exit(1);
-    }
-
-    char buffer[1024];
-    int bytes;
-
-    bytes = recv(msgsock, buffer, sizeof(buffer), 0);
-
-    if(bytes == SOCKET_ERROR) {
-      printf("recv() failed: %d\n", WSAGetLastError());
-      WSACleanup();
-      exit(1);
-    }
-
-    buffer[bytes] = '\0';
-
-    // get route
-    char* path = strtok(buffer, " ");
-    path = strtok(NULL, " ");
-
-    Route* route = Router_getRoute(router, path);
-
-    printf("Path: %s\n", path);
-
-    if (route == NULL) {
-      printf("Route not found\n");
-      closesocket(msgsock);
-      continue;
-    }
-
-    char http_header[4096] = "HTTP/1.1 200 OK\r\n\r\n";
-
-    char* html = read_html_file(route->html);
-
-    strcat(http_header, html);
-    // strcat(http_header, "\r\n\r\n");
-
-
-    // strcat(response, "\r\n\r\n");
-
-    printf("Response: %s \n", http_header);
-    
-
-    send(msgsock, http_header, strlen(http_header), 0);
-    closesocket(msgsock);
-
-    free(html);
-  }
-
-  closesocket(sock);
-  WSACleanup();
-
-
-  return (Server) { .socket = sock };
-
+  return sock;
 }
