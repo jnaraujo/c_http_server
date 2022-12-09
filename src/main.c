@@ -90,9 +90,9 @@ int main() {
         msgsock = accept(socket, NULL, NULL);
 
         if(msgsock == INVALID_SOCKET) {
-        printf("accept() failed: %d\n", WSAGetLastError());
-        WSACleanup();
-        exit(1);
+            printf("accept() failed: %d\n", WSAGetLastError());
+            WSACleanup();
+            exit(1);
         }
 
         char buffer[1024];
@@ -101,9 +101,9 @@ int main() {
         bytes = recv(msgsock, buffer, sizeof(buffer), 0);
 
         if(bytes == SOCKET_ERROR) {
-        printf("recv() failed: %d\n", WSAGetLastError());
-        WSACleanup();
-        exit(1);
+            printf("recv() failed: %d\n", WSAGetLastError());
+            WSACleanup();
+            exit(1);
         }
 
         buffer[bytes] = '\0';
@@ -117,9 +117,10 @@ int main() {
         printf("Path: %s\n", path);
 
         if (route == NULL) {
-        printf("Route not found\n");
-        closesocket(msgsock);
-        continue;
+            printf("Route not found\n");
+            send(msgsock, "HTTP/1.1 404 Not Found\r\n\r\n", 26, 0);
+            closesocket(msgsock);
+            continue;
         }
 
         char http_header[4096] = "HTTP/1.1 200 OK\r\n\r\n";
