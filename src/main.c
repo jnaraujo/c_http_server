@@ -80,6 +80,10 @@ int main() {
 
         printf("Route name: %s\n", routeNameWithoutHtml);
 
+        if(strcmp(routeNameWithoutHtml, "/index") == 0) {
+            routeNameWithoutHtml = "/";
+        }
+
         Router_addRoute(router, routeNameWithoutHtml, filePath);
     }
 
